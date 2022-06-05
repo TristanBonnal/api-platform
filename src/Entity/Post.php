@@ -4,8 +4,12 @@ namespace App\Entity;
 
 use App\Repository\PostRepository;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Annotation\ApiResource;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
+// Crée automatiquement tous les endpoints et la doc pour la classe Post
+// https://api-platform.com/docs/core/getting-started/#mapping-the-entities
+#[ApiResource]
 class Post
 {
     #[ORM\Id]
@@ -27,6 +31,9 @@ class Post
 
     #[ORM\Column(type: 'datetime')]
     private $updatedAt;
+
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'posts')]
+    private $category;
 
     public function getId(): ?int
     {
@@ -89,6 +96,18 @@ class Post
     public function setUpdatedAt(\DateTimeInterface $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): self
+    {
+        $this->category = $category;
 
         return $this;
     }

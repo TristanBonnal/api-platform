@@ -1,0 +1,4 @@
+# Permet de customiser les ressources de l'API, doit être mappé dans le fichier api_platform racine
+# https://api-platform.com/docs/core/getting-started/#mapping-the-entities/
+resources:
+  App\Entity\Post: ~

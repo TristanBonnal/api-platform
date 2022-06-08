@@ -6,6 +6,7 @@ use App\Repository\PostRepository;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints\Length;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 // Crée automatiquement tous les endpoints et la doc pour la classe Post
@@ -15,9 +16,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
     itemOperations: [   // Définit les opérations et les groupes pour les endpoints concernant un item (/{id})
         'get' => [
             'normalization_context' => ['groups' => ['read:collection', 'read:get']] 
-        ]
+        ],
+        'put' => [
+            'denormalization_context' => ['groups' => ['write:Post']]  // Denormalization détermine les champs qui sont choisis en écriture (put patch et post)
+        ],
+        'delete'
     ],
-    denormalizationContext: ['groups' => ['write']],    
 )]
 class Post
 {
@@ -28,11 +32,14 @@ class Post
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['read:collection'])]
+    #[Groups(['read:collection', 'write:Post'])]
     private $title;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['read:collection'])]
+    #[
+        Groups(['read:collection', 'write:Post']),
+        Length(min: 5)
+    ]
     private $slug;
 
     #[ORM\Column(type: 'text')]
@@ -46,7 +53,8 @@ class Post
     private $updatedAt;
 
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'posts')]
-    #[Groups(['read:get'])]
+    #[Groups(['read:get', 'write:Post'])] // Le group read:get n'est définit que dans le context itemOpérations, 
+                            // nous récupérons donc les catégories que pour un seul article demandé, et non la collection
     private $category;
 
     public function getId(): ?int

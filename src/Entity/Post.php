@@ -7,21 +7,23 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\Valid;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 // Crée automatiquement tous les endpoints et la doc pour la classe Post
 // https://api-platform.com/docs/core/getting-started/#mapping-the-entities
 #[ApiResource(
     normalizationContext: ['groups' => ['read:collection']],    // Permet de déterminer quel groupe de propriétés nous renvoyons dans la réponse: https://api-platform.com/docs/core/serialization/
-    itemOperations: [   // Définit les opérations et les groupes pour les endpoints concernant un item (/{id})
+    itemOperations: [                                           // Définit les opérations et les groupes pour les endpoints concernant un item (/{id})
         'get' => [
             'normalization_context' => ['groups' => ['read:collection', 'read:get']] 
         ],
         'put' => [
-            'denormalization_context' => ['groups' => ['write:Post']]  // Denormalization détermine les champs qui sont choisis en écriture (put patch et post)
-        ],
+            'denormalization_context' => ['groups' => ['write:Post']]  // Denormalization détermine les champs qui sont choisis en écriture (put patch et post), 
+        ],                                                             // attention : seuls les méthodes auxquelles ont été attribuées des groups seront fonctionnelles
         'delete'
     ],
+    denormalizationContext: ['groups' => ['write:Post']],
 )]
 class Post
 {
@@ -43,18 +45,21 @@ class Post
     private $slug;
 
     #[ORM\Column(type: 'text')]
+    #[Groups(['read:get', 'write:Post'])]
     private $content;
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:get'])]
+    #[Groups(['read:get', 'write:Post'])]
     private $createdAt;
 
     #[ORM\Column(type: 'datetime')]
+    #[Groups(['read:get', 'write:Post'])]
     private $updatedAt;
 
-    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'posts')]
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'posts', cascade: ['persist'])]
+    #[Valid()]    // Permet d'imposer les validations du sous objet (ici lenght pour Category->name)
     #[Groups(['read:get', 'write:Post'])] // Le group read:get n'est définit que dans le context itemOpérations, 
-                            // nous récupérons donc les catégories que pour un seul article demandé, et non la collection
+                                        // nous récupérons donc les catégories que pour un seul article demandé, et non la collection
     private $category;
 
     public function getId(): ?int

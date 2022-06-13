@@ -24,6 +24,9 @@ use Symfony\Component\Validator\Constraints\Valid;
         'delete'
     ],
     denormalizationContext: ['groups' => ['write:Post']],
+    paginationItemsPerPage: 3,       // Permet la pagination, les pages précédentes, suivantes etc... sont gérées dans les données hydra: https://api-platform.com/docs/core/pagination/
+    paginationMaximumItemsPerPage: 5,
+    paginationClientItemsPerPage: true    // Autorise le client à gérer lui même le nombre d'items par page (via l'url), mais sans pouvoir dépasser le maximum
 )]
 class Post
 {

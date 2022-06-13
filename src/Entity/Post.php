@@ -2,9 +2,11 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use App\Repository\PostRepository;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\Valid;
@@ -28,6 +30,8 @@ use Symfony\Component\Validator\Constraints\Valid;
     paginationMaximumItemsPerPage: 5,
     paginationClientItemsPerPage: true    // Autorise le client à gérer lui même le nombre d'items par page (via l'url), mais sans pouvoir dépasser le maximum
 )]
+
+#[ApiFilter(SearchFilter::class, properties: ["id" => "exact", "title" => "partial"])]    // Filtre les résultats côté client par champ souhaité (partial = LIKE en sql)
 class Post
 {
     #[ORM\Id]

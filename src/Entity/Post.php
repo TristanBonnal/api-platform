@@ -64,10 +64,13 @@ class Post
     private $updatedAt;
 
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'posts', cascade: ['persist'])]
-    #[Valid()]    // Permet d'imposer les validations du sous objet (ici lenght pour Category->name)
+    #[Valid()]    // Permet d'imposer les validations du sous objet (ici length pour Category->name)
     #[Groups(['read:get', 'write:Post'])] // Le group read:get n'est définit que dans le context itemOpérations, 
                                         // nous récupérons donc les catégories que pour un seul article demandé, et non la collection
     private $category;
+
+    #[ORM\Column(type: 'boolean', options: ["default" => "0"])]
+    private $online = false;
 
     public function getId(): ?int
     {
@@ -142,6 +145,18 @@ class Post
     public function setCategory(?Category $category): self
     {
         $this->category = $category;
+
+        return $this;
+    }
+
+    public function isOnline(): ?bool
+    {
+        return $this->online;
+    }
+
+    public function setOnline(bool $online): self
+    {
+        $this->online = $online;
 
         return $this;
     }
